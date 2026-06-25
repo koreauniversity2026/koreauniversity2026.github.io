@@ -318,6 +318,140 @@
       .left-panel { display: none; }
       .right-panel { padding: 40px 24px; min-height: 100vh; }
     }
+    /* ── Form lang dropdown ── */
+    .form-lang-wrap {
+      display: flex; justify-content: flex-end;
+      margin-bottom: 16px;
+    }
+    .form-lang-dropdown { position: relative; }
+    .form-lang-trigger {
+      display: flex; align-items: center; gap: 7px;
+      padding: 6px 12px 6px 8px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer; font-family: inherit;
+      font-size: 13px; font-weight: 500;
+      color: var(--text-primary);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .form-lang-trigger:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67,56,202,0.08);
+    }
+    .form-flag-icon {
+      width: 22px; height: 22px;
+      border-radius: 50%; object-fit: cover;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .form-lang-chev {
+      width: 12px; height: 12px;
+      color: var(--text-tertiary);
+      transition: transform 0.2s;
+    }
+    .form-lang-dropdown.open .form-lang-chev { transform: rotate(180deg); }
+    .form-lang-menu {
+      display: none;
+      position: absolute; top: calc(100% + 6px); right: 0;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      min-width: 160px; z-index: 500; overflow: hidden;
+    }
+    .form-lang-dropdown.open .form-lang-menu { display: block; }
+    .form-lang-menu button {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; padding: 10px 14px;
+      font-size: 13px; font-family: inherit;
+      color: var(--text-secondary);
+      background: none; border: none; cursor: pointer;
+      transition: background 0.13s;
+    }
+    .form-lang-menu button:hover { background: var(--primary-light); color: var(--primary); }
+    .form-lang-menu button.active { color: var(--primary); font-weight: 600; background: var(--primary-light); }
+    .form-flag-icon-sm {
+      width: 22px; height: 22px;
+      border-radius: 50%; object-fit: cover;
+      border: 1px solid var(--border); flex-shrink: 0;
+    }
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 900;
+      backdrop-filter: blur(3px);
+      animation: fadeIn 0.2s ease;
+    }
+    .modal-overlay.open { display: block; }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -48%);
+      width: 92%; max-width: 420px;
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 40px 36px 32px;
+      z-index: 1000;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+      animation: slideUp 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .modal.open { display: block; }
+
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    @keyframes slideUp { from { opacity:0; transform: translate(-50%, -44%); } to { opacity:1; transform: translate(-50%, -48%); } }
+
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      width: 32px; height: 32px;
+      border: none; border-radius: 8px;
+      background: var(--bg); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-tertiary);
+      transition: background 0.15s, color 0.15s;
+    }
+    .modal-close:hover { background: #E5E7EB; color: var(--text-primary); }
+    .modal-close svg { width: 16px; height: 16px; }
+
+    .modal-icon {
+      width: 60px; height: 60px; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+    }
+    .modal-icon svg { width: 26px; height: 26px; }
+    .modal-icon-blue { background: var(--primary-light); color: var(--primary); border: 1.5px solid #C7D2FE; }
+    .modal-icon-green { background: #F0FDF4; color: #16A34A; border: 1.5px solid #BBF7D0; }
+
+    .modal-title {
+      text-align: center;
+      font-size: 20px; font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .modal-sub {
+      text-align: center;
+      font-size: 14px; color: var(--text-secondary);
+      margin-bottom: 28px; line-height: 1.6;
+    }
+    .modal-email-badge {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      font-size: 14px; font-weight: 500;
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+    .modal-email-badge svg { color: var(--text-secondary); flex-shrink: 0; }
+    .modal-hint {
+      text-align: center;
+      font-size: 12px; color: var(--text-tertiary);
+      margin-bottom: 14px;
+    }
   </style>
 </head>
 <body>
@@ -361,10 +495,32 @@
   <div class="right-panel">
     <div class="form-box">
 
+      <!-- Lang selector -->
+      <div class="form-lang-wrap">
+        <div class="form-lang-dropdown" id="formLangDropdown">
+          <button class="form-lang-trigger" onclick="toggleFormLang(event)">
+            <img class="form-flag-icon" id="formActiveLangFlag" src="https://flagcdn.com/w40/kr.png" alt="KR" />
+            <span id="formActiveLangLabel">한국어</span>
+            <svg class="form-lang-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="form-lang-menu">
+            <button class="active" onclick="setFormLang('ko')">
+              <img class="form-flag-icon-sm" src="https://flagcdn.com/w40/kr.png" alt="KR" /> 한국어
+            </button>
+            <button onclick="setFormLang('en')">
+              <img class="form-flag-icon-sm" src="https://flagcdn.com/w40/us.png" alt="US" /> English
+            </button>
+            <button onclick="setFormLang('vn')">
+              <img class="form-flag-icon-sm" src="https://flagcdn.com/w40/vn.png" alt="VN" /> Tiếng Việt
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Tabs -->
       <div class="auth-tabs">
-        <button class="auth-tab" id="tabSignup" onclick="showTab('signup')">회원가입</button>
-        <button class="auth-tab active" id="tabLogin" onclick="showTab('login')">로그인</button>
+        <button class="auth-tab" id="tabSignup" onclick="showTab('signup')" data-i18n="tab_signup">회원가입</button>
+        <button class="auth-tab active" id="tabLogin" onclick="showTab('login')" data-i18n="tab_login">로그인</button>
       </div>
 
       <!-- ── SIGNUP FORM ── -->
@@ -486,7 +642,7 @@
         </div>
 
         <div style="text-align:right; margin-bottom: 20px;">
-          <a href="#" style="font-size:13px; color:var(--primary); text-decoration:none;">비밀번호를 잊으셨나요?</a>
+          <a href="forgot.html" id="forgotPwLink" style="font-size:13px; color:var(--primary); text-decoration:none;">비밀번호를 잊으셨나요?</a>
         </div>
 
         <button class="submit-btn" onclick="doLogin()">로그인</button>
@@ -505,6 +661,54 @@
         <p class="success-sub">이메일을 확인하여 계정을 활성화하세요.<br>잠시 후 메인 페이지로 이동합니다.</p>
       </div>
 
+    </div>
+  </div>
+</div>
+
+<!-- ── FORGOT PASSWORD MODAL ── -->
+<div class="modal-overlay" id="forgotOverlay" onclick="closeForgotModal()"></div>
+<div class="modal" id="forgotModal">
+  <button class="modal-close" onclick="closeForgotModal()" aria-label="닫기">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+
+  <!-- Step 1: 이메일 입력 -->
+  <div id="modalStep1">
+    <div class="modal-icon modal-icon-blue">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <h2 class="modal-title" id="modal-title">비밀번호 찾기</h2>
+    <p class="modal-sub" id="modal-sub">가입한 이메일을 입력하면<br>재설정 링크를 보내드려요.</p>
+
+    <div class="field" style="margin-bottom:20px;">
+      <label for="modal-email" id="modal-email-label">이메일 (ID)</label>
+      <input type="email" id="modal-email" placeholder="example@email.com" oninput="clearModalErr()" />
+      <div class="field-err" id="modal-email-err">올바른 이메일 주소를 입력해주세요.</div>
+    </div>
+
+    <button class="submit-btn" id="modal-send-btn" onclick="doForgotModal()" style="margin-bottom:14px;">재설정 링크 보내기</button>
+    <div class="bottom-text">
+      <a href="#" onclick="closeForgotModal(); return false;" id="modal-back-link">← 로그인으로 돌아가기</a>
+    </div>
+  </div>
+
+  <!-- Step 2: 전송 완료 -->
+  <div id="modalStep2" style="display:none;">
+    <div class="modal-icon modal-icon-green">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+    </div>
+    <h2 class="modal-title" id="modal-sent-title">이메일을 보냈어요! ✉️</h2>
+    <p class="modal-sub" id="modal-sent-sub">받은편지함을 확인하고<br>링크를 클릭해 비밀번호를 재설정하세요.</p>
+
+    <div class="modal-email-badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      <span id="modal-sent-addr"></span>
+    </div>
+
+    <p class="modal-hint" id="modal-hint">스팸함도 확인해보세요. 이메일이 오지 않으면:</p>
+    <button class="submit-btn" onclick="resetModalStep()" id="modal-resend-btn" style="margin-bottom:14px;">다시 보내기</button>
+    <div class="bottom-text">
+      <a href="#" onclick="closeForgotModal(); return false;" id="modal-back-link2">← 로그인으로 돌아가기</a>
     </div>
   </div>
 </div>
@@ -622,6 +826,205 @@
   function socialLogin(provider) {
     alert(`${provider === 'google' ? 'Google' : 'Facebook'} 로그인은 백엔드 연동 후 활성화됩니다.`);
   }
+
+  // ── Language switcher ──
+  const formLangMeta = {
+    ko: { flag: 'https://flagcdn.com/w40/kr.png', label: '한국어' },
+    en: { flag: 'https://flagcdn.com/w40/us.png', label: 'English' },
+    vn: { flag: 'https://flagcdn.com/w40/vn.png', label: 'Tiếng Việt' },
+  };
+
+  const i18n = {
+    ko: {
+      tab_signup: '회원가입', tab_login: '로그인',
+      su_title: '계정 만들기', su_sub: '무료로 시작하세요. 신용카드 불필요.',
+      google_signup: 'Google로 시작하기', fb_signup: 'Facebook으로 시작하기',
+      or_email_signup: '또는 이메일로 가입',
+      label_email: '이메일 (ID)', ph_email: 'example@email.com',
+      label_pw: '비밀번호', ph_pw: '8자 이상 입력',
+      label_pw2: '비밀번호 확인', ph_pw2: '비밀번호를 다시 입력',
+      agree_text: '<a href="#">이용약관</a> 및 <a href="#">개인정보처리방침</a>에 동의합니다.',
+      btn_signup: '회원가입', already: '이미 계정이 있으신가요?', go_login: '로그인',
+      li_title: '다시 오셨군요!', li_sub: '계정에 로그인하세요.',
+      google_login: 'Google로 로그인', fb_login: 'Facebook으로 로그인',
+      or_email_login: '또는 이메일로 로그인',
+      forgot_pw: '비밀번호를 잊으셨나요?',
+      btn_login: '로그인', no_account: '계정이 없으신가요?', go_signup: '회원가입',
+      success_title: '가입 완료! 🎉', success_sub: '이메일을 확인하여 계정을 활성화하세요.<br>잠시 후 메인 페이지로 이동합니다.',
+      pw_weak: '약함 — 숫자 또는 대문자를 추가하세요',
+      pw_fair: '보통 — 특수문자를 추가하면 더 안전해요',
+      pw_strong: '강함 👍',
+      err_email: '올바른 이메일 주소를 입력해주세요.', err_pw: '비밀번호는 8자 이상이어야 합니다.',
+      err_pw2: '비밀번호가 일치하지 않습니다.', err_li_email: '이메일 주소를 입력해주세요.',
+      err_li_pw: '비밀번호를 입력해주세요.', err_agree: '이용약관에 동의해주세요.',
+    },
+    en: {
+      tab_signup: 'Sign Up', tab_login: 'Log In',
+      su_title: 'Create your account', su_sub: 'Start for free. No credit card needed.',
+      google_signup: 'Continue with Google', fb_signup: 'Continue with Facebook',
+      or_email_signup: 'Or sign up with email',
+      label_email: 'Email (ID)', ph_email: 'example@email.com',
+      label_pw: 'Password', ph_pw: 'At least 8 characters',
+      label_pw2: 'Confirm Password', ph_pw2: 'Re-enter your password',
+      agree_text: 'I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.',
+      btn_signup: 'Create Account', already: 'Already have an account?', go_login: 'Log in',
+      li_title: 'Welcome back!', li_sub: 'Log in to your account.',
+      google_login: 'Log in with Google', fb_login: 'Log in with Facebook',
+      or_email_login: 'Or log in with email',
+      forgot_pw: 'Forgot your password?',
+      btn_login: 'Log In', no_account: "Don't have an account?", go_signup: 'Sign up',
+      success_title: 'You\'re in! 🎉', success_sub: 'Check your email to activate your account.<br>Redirecting to home shortly.',
+      pw_weak: 'Weak — add numbers or uppercase letters',
+      pw_fair: 'Fair — add special characters for more security',
+      pw_strong: 'Strong 👍',
+      err_email: 'Please enter a valid email address.', err_pw: 'Password must be at least 8 characters.',
+      err_pw2: 'Passwords do not match.', err_li_email: 'Please enter your email address.',
+      err_li_pw: 'Please enter your password.', err_agree: 'Please agree to the terms.',
+    },
+    vn: {
+      tab_signup: 'Đăng ký', tab_login: 'Đăng nhập',
+      su_title: 'Tạo tài khoản', su_sub: 'Bắt đầu miễn phí. Không cần thẻ tín dụng.',
+      google_signup: 'Tiếp tục với Google', fb_signup: 'Tiếp tục với Facebook',
+      or_email_signup: 'Hoặc đăng ký bằng email',
+      label_email: 'Email (ID)', ph_email: 'example@email.com',
+      label_pw: 'Mật khẩu', ph_pw: 'Ít nhất 8 ký tự',
+      label_pw2: 'Xác nhận mật khẩu', ph_pw2: 'Nhập lại mật khẩu',
+      agree_text: 'Tôi đồng ý với <a href="#">Điều khoản dịch vụ</a> và <a href="#">Chính sách bảo mật</a>.',
+      btn_signup: 'Tạo tài khoản', already: 'Đã có tài khoản?', go_login: 'Đăng nhập',
+      li_title: 'Chào mừng trở lại!', li_sub: 'Đăng nhập vào tài khoản của bạn.',
+      google_login: 'Đăng nhập với Google', fb_login: 'Đăng nhập với Facebook',
+      or_email_login: 'Hoặc đăng nhập bằng email',
+      forgot_pw: 'Quên mật khẩu?',
+      btn_login: 'Đăng nhập', no_account: 'Chưa có tài khoản?', go_signup: 'Đăng ký',
+      success_title: 'Đăng ký thành công! 🎉', success_sub: 'Kiểm tra email để kích hoạt tài khoản.<br>Đang chuyển hướng về trang chủ.',
+      pw_weak: 'Yếu — thêm số hoặc chữ hoa',
+      pw_fair: 'Trung bình — thêm ký tự đặc biệt',
+      pw_strong: 'Mạnh 👍',
+      err_email: 'Vui lòng nhập địa chỉ email hợp lệ.', err_pw: 'Mật khẩu phải có ít nhất 8 ký tự.',
+      err_pw2: 'Mật khẩu không khớp.', err_li_email: 'Vui lòng nhập địa chỉ email.',
+      err_li_pw: 'Vui lòng nhập mật khẩu.', err_agree: 'Vui lòng đồng ý với điều khoản.',
+    }
+  };
+
+  let currentLang = 'ko';
+
+  function toggleFormLang(e) {
+    e.stopPropagation();
+    document.getElementById('formLangDropdown').classList.toggle('open');
+  }
+
+  function setFormLang(lang) {
+    currentLang = lang;
+    const meta = formLangMeta[lang];
+    document.getElementById('formActiveLangFlag').src = meta.flag;
+    document.getElementById('formActiveLangLabel').textContent = meta.label;
+    document.querySelectorAll('.form-lang-menu button').forEach(b => b.classList.remove('active'));
+    const map = { ko: 0, en: 1, vn: 2 };
+    document.querySelectorAll('.form-lang-menu button')[map[lang]].classList.add('active');
+    document.getElementById('formLangDropdown').classList.remove('open');
+    applyLang(lang);
+  }
+
+  function applyLang(lang) {
+    const t = i18n[lang];
+    // tabs
+    document.getElementById('tabSignup').textContent = t.tab_signup;
+    document.getElementById('tabLogin').textContent = t.tab_login;
+    // signup form
+    document.querySelector('#signupForm .form-title').textContent = t.su_title;
+    document.querySelector('#signupForm .form-sub').textContent = t.su_sub;
+    const suBtns = document.querySelectorAll('#signupForm .social-btn');
+    if (suBtns[0]) suBtns[0].childNodes[suBtns[0].childNodes.length - 1].textContent = ' ' + t.google_signup;
+    if (suBtns[1]) suBtns[1].childNodes[suBtns[1].childNodes.length - 1].textContent = ' ' + t.fb_signup;
+    document.querySelector('#signupForm .divider span').textContent = t.or_email_signup;
+    document.querySelector('label[for="su-email"]').textContent = t.label_email;
+    document.getElementById('su-email').placeholder = t.ph_email;
+    document.querySelector('label[for="su-pw"]').textContent = t.label_pw;
+    document.getElementById('su-pw').placeholder = t.ph_pw;
+    document.querySelector('label[for="su-pw2"]').textContent = t.label_pw2;
+    document.getElementById('su-pw2').placeholder = t.ph_pw2;
+    document.querySelector('.check-wrap label').innerHTML = t.agree_text;
+    document.querySelector('#signupForm .submit-btn').textContent = t.btn_signup;
+    const suBottom = document.querySelector('#signupForm .bottom-text');
+    suBottom.innerHTML = `${t.already} <a href="#" onclick="showTab('login')">${t.go_login}</a>`;
+    // error messages
+    document.getElementById('su-email-err').textContent = t.err_email;
+    document.getElementById('su-pw-err').textContent = t.err_pw;
+    document.getElementById('su-pw2-err').textContent = t.err_pw2;
+    // login form
+    document.querySelector('#loginForm .form-title').textContent = t.li_title;
+    document.querySelector('#loginForm .form-sub').textContent = t.li_sub;
+    const liBtns = document.querySelectorAll('#loginForm .social-btn');
+    if (liBtns[0]) liBtns[0].childNodes[liBtns[0].childNodes.length - 1].textContent = ' ' + t.google_login;
+    if (liBtns[1]) liBtns[1].childNodes[liBtns[1].childNodes.length - 1].textContent = ' ' + t.fb_login;
+    document.querySelector('#loginForm .divider span').textContent = t.or_email_login;
+    document.querySelector('label[for="li-email"]').textContent = t.label_email;
+    document.getElementById('li-email').placeholder = t.ph_email;
+    document.querySelector('label[for="li-pw"]').textContent = t.label_pw;
+    document.getElementById('li-pw').placeholder = t.ph_pw;
+    document.querySelector('#loginForm a[href="#"]').textContent = t.forgot_pw;
+    document.querySelector('#loginForm .submit-btn').textContent = t.btn_login;
+    const liBottom = document.querySelector('#loginForm .bottom-text');
+    liBottom.innerHTML = `${t.no_account} <a href="#" onclick="showTab('signup')">${t.go_signup}</a>`;
+    document.getElementById('li-email-err').textContent = t.err_li_email;
+    document.getElementById('li-pw-err').textContent = t.err_li_pw;
+    // success
+    document.querySelector('.success-title').textContent = t.success_title;
+    document.querySelector('.success-sub').innerHTML = t.success_sub;
+  }
+
+  document.addEventListener('click', () => {
+    document.getElementById('formLangDropdown').classList.remove('open');
+  });
+
+  // ── Forgot Password Modal ──
+  function openForgotModal() {
+    document.getElementById('forgotOverlay').classList.add('open');
+    document.getElementById('forgotModal').classList.add('open');
+    document.getElementById('modalStep1').style.display = 'block';
+    document.getElementById('modalStep2').style.display = 'none';
+    document.getElementById('modal-email').value = '';
+    clearModalErr();
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('modal-email').focus(), 100);
+  }
+
+  function closeForgotModal() {
+    document.getElementById('forgotOverlay').classList.remove('open');
+    document.getElementById('forgotModal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function clearModalErr() {
+    document.getElementById('modal-email-err').classList.remove('visible');
+    document.getElementById('modal-email').classList.remove('error');
+  }
+
+  function doForgotModal() {
+    const email = document.getElementById('modal-email').value.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      document.getElementById('modal-email-err').classList.add('visible');
+      document.getElementById('modal-email').classList.add('error');
+      return;
+    }
+    // Show step 2
+    document.getElementById('modal-sent-addr').textContent = email;
+    document.getElementById('modalStep1').style.display = 'none';
+    document.getElementById('modalStep2').style.display = 'block';
+  }
+
+  function resetModalStep() {
+    document.getElementById('modalStep1').style.display = 'block';
+    document.getElementById('modalStep2').style.display = 'none';
+    document.getElementById('modal-email').value = '';
+    clearModalErr();
+    setTimeout(() => document.getElementById('modal-email').focus(), 100);
+  }
+
+  // Close modal on overlay click (already handled by onclick), also ESC key
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeForgotModal();
+  });
 </script>
 </body>
 </html>
