@@ -642,7 +642,7 @@
         </div>
 
         <div style="text-align:right; margin-bottom: 20px;">
-          <a href="forgot.html" id="forgotPwLink" style="font-size:13px; color:var(--primary); text-decoration:none;">비밀번호를 잊으셨나요?</a>
+          <a href="javascript:void(0)" onclick="openForgotModal()" id="forgotPwLink" style="font-size:13px; color:var(--primary); text-decoration:none;">비밀번호를 잊으셨나요?</a>
         </div>
 
         <button class="submit-btn" onclick="doLogin()">로그인</button>
@@ -1026,5 +1026,33 @@
     if (e.key === 'Escape') closeForgotModal();
   });
 </script>
+  // --- THÊM PHẦN NÀY VÀO CUỐI SCRIPT ---
+
+  function openForgotModal() {
+    document.getElementById('forgotOverlay').classList.add('open');
+    document.getElementById('forgotModal').classList.add('open');
+  }
+
+  function closeForgotModal() {
+    document.getElementById('forgotOverlay').classList.remove('open');
+    document.getElementById('forgotModal').classList.remove('open');
+  }
+
+  function doSignup() {
+    const email = document.getElementById('su-email').value.trim();
+    const pw = document.getElementById('su-pw').value;
+    const pw2 = document.getElementById('su-pw2').value;
+    
+    if (email.includes('@') && pw.length >= 8 && pw === pw2) {
+      document.getElementById('signupForm').style.display = 'none';
+      document.getElementById('successBox').classList.add('visible');
+    } else {
+      alert("입력 정보를 다시 확인해주세요.");
+    }
+  }
+
+  function doLogin() {
+    alert("로그인 버튼이 눌렸습니다!");
+  }
 </body>
 </html>
