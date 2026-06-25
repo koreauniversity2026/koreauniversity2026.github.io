@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Korea University Community</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%234338CA'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='700' font-size='36' fill='white'>K</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #4338CA;
+      --primary-light: #EEF2FF;
+      --accent: #06B6D4;
+      --accent-light: #ECFEFF;
+      --bg: #F8F9FC;
+      --surface: #FFFFFF;
+      --border: rgba(0,0,0,0.08);
+      --border-strong: rgba(0,0,0,0.15);
+      --text-primary: #111827;
+      --text-secondary: #6B7280;
+      --text-tertiary: #9CA3AF;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+    }
+    html, body {
+      font-family: 'Noto Sans KR', 'Noto Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      font-size: 15px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── TOP BAR (언어 + 로그인) ── */
+    .top-bar {
+      background: var(--primary);
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 32px;
+      gap: 16px;
+    }
+    .top-bar a, .top-bar button {
+      color: rgba(255,255,255,0.85);
+      font-size: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .top-bar a:hover, .top-bar button:hover { color: #fff; }
+    .top-bar .sep { color: rgba(255,255,255,0.3); }
+    .lang-dropdown { position: relative; display: flex; align-items: center; }
+    .lang-trigger {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 500; color: #fff;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 5px; padding: 3px 10px 3px 8px;
+      cursor: pointer; font-family: inherit; transition: background 0.15s;
+    }
+    .lang-trigger:hover { background: rgba(255,255,255,0.25); }
+    .lang-trigger .flag { font-size: 14px; }
+    .flag-icon {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid rgba(255,255,255,0.4);
+      flex-shrink: 0;
+    }
+    .flag-icon-menu {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid var(--border);
+      flex-shrink: 0;
+    }
+    .lang-badge {
+      font-size: 10px; font-weight: 700;
+      background: rgba(255,255,255,0.25);
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 3px;
+      padding: 1px 5px;
+      letter-spacing: 0.04em;
+      color: #fff;
+    }
+    .lang-badge-menu {
+      font-size: 10px; font-weight: 700;
+      background: var(--primary-light);
+      border: 1px solid rgba(67,56,202,0.2);
+      border-radius: 3px;
+      padding: 1px 5px;
+      letter-spacing: 0.04em;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+    .lang-trigger .chev { width: 11px; height: 11px; transition: transform 0.2s; }
+    .lang-dropdown.open .chev { transform: rotate(180deg); }
+    .lang-menu {
+      display: none; position: absolute; top: calc(100% + 6px); right: 0;
+      background: #fff; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      min-width: 145px; z-index: 500; overflow: hidden;
+    }
+    .lang-dropdown.open .lang-menu { display: block; }
+    .lang-menu button {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%; padding: 9px 14px; font-size: 13px;
+      color: #111827 !important; background: none; border: none;
+      cursor: pointer; font-family: inherit; transition: background 0.13s;
+    }
+    .lang-menu button:hover { background: #EEF2FF; color: var(--primary) !important; }
+    .lang-menu button.active { color: var(--primary) !important; font-weight: 600; background: #EEF2FF; }
+    .lang-menu button .flag { font-size: 15px; }
+
+    /* ── BRAND BAR ── */
+    .brand-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      height: 64px;
+    }
+    .brand-logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none;
+    }
+    .brand-icon {
+      width: 40px; height: 40px;
+      background: var(--primary);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .brand-icon svg { width: 22px; height: 22px; color: #fff; }
+    .brand-name {
+      font-size: 20px; font-weight: 700;
+      color: var(--primary);
+    }
+    .brand-name span { color: var(--accent); }
+    .brand-right {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .brand-right button {
+      font-size: 13px; font-weight: 500;
+      padding: 8px 18px;
+      border-radius: var(--radius-sm);
+      cursor: pointer; font-family: inherit;
+      transition: all 0.15s;
+    }
+    .btn-outline-sm {
+      background: none;
+      border: 1px solid var(--border-strong);
+      color: var(--text-primary);
+    }
+    .btn-outline-sm:hover { background: var(--bg); }
+    .btn-filled-sm {
+      background: var(--primary);
+      border: none;
+      color: #fff;
+    }
+    .btn-filled-sm:hover { background: #3730A3; }
+
+    /* ── NAV BAR ── */
+    .nav-bar {
+      background: var(--surface);
+      border-bottom: 2px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: stretch;
+      padding: 0 32px;
+    }
+    .nav-item {
+      position: relative;
+      display: flex; align-items: center;
+    }
+    .nav-item > a, .nav-item > button {
+      display: flex; align-items: center; gap: 5px;
+      padding: 0 18px;
+      height: 48px;
+      font-size: 14px; font-weight: 500;
+      color: var(--text-primary);
+      text-decoration: none;
+      background: none; border: none;
+      cursor: pointer; font-family: inherit;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    .nav-item > a:hover, .nav-item > button:hover {
+      color: var(--primary);
+    }
+    .nav-item.active > a, .nav-item.active > button,
+    .nav-item:hover > a, .nav-item:hover > button {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+    .nav-item .chevron {
+      width: 14px; height: 14px;
+      transition: transform 0.2s;
+    }
+    .nav-item:hover .chevron { transform: rotate(180deg); }
+
+    /* Dropdown */
+    .nav-dropdown {
+      position: absolute;
+      top: calc(100% + 2px);
+      left: 0;
+      min-width: 560px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 2px solid var(--primary);
+      border-radius: 0 0 var(--radius-md) var(--radius-md);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      display: none;
+      z-index: 200;
+    }
+    .nav-item:hover .nav-dropdown { display: flex; }
+    .dropdown-left {
+      width: 200px;
+      background: var(--primary-light);
+      padding: 8px 0;
+      border-right: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .dropdown-left a {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 20px;
+      font-size: 13px; font-weight: 500;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all 0.13s;
+    }
+    .dropdown-left a:hover, .dropdown-left a.active {
+      background: var(--primary);
+      color: #fff;
+    }
+    .dropdown-left a svg { width: 14px; height: 14px; opacity: 0.6; }
+    .dropdown-right {
+      flex: 1;
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      align-content: start;
+    }
+    .dropdown-right a {
+      display: block;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-radius: var(--radius-sm);
+      transition: all 0.13s;
+    }
+    .dropdown-right a:hover {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    /* Mobile hamburger */
+    .nav-hamburger {
+      display: none;
+      margin-left: auto;
+      width: 38px; height: 38px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: none; cursor: pointer;
+      align-items: center; justify-content: center;
+    }
+    .nav-hamburger svg { width: 18px; height: 18px; }
+
+    /* Mobile drawer */
+    .mobile-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 300;
+    }
+    .mobile-overlay.visible { display: block; }
+    .mobile-drawer {
+      position: fixed;
+      top: 0; right: -100%; bottom: 0;
+      width: 280px;
+      background: var(--surface);
+      z-index: 400;
+      transition: right 0.27s cubic-bezier(0.4,0,0.2,1);
+      overflow-y: auto;
+      padding: 16px 0;
+    }
+    .mobile-drawer.open { right: 0; }
+    .mobile-drawer .m-close {
+      display: flex; justify-content: flex-end;
+      padding: 0 16px 12px;
+    }
+    .mobile-drawer .m-close button {
+      background: none; border: none; cursor: pointer; padding: 6px;
+      color: var(--text-secondary);
+    }
+    .mobile-drawer a {
+      display: block; padding: 12px 24px;
+      font-size: 14px; color: var(--text-primary);
+      text-decoration: none; border-left: 3px solid transparent;
+    }
+    .mobile-drawer a:hover { background: var(--primary-light); color: var(--primary); border-left-color: var(--primary); }
+    .mobile-drawer .m-section {
+      font-size: 11px; font-weight: 500;
+      color: var(--text-tertiary);
+      letter-spacing: 0.05em; text-transform: uppercase;
+      padding: 14px 24px 4px;
+    }
+    .mobile-drawer hr { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #EEF2FF 0%, #ECFEFF 100%);
+      padding: 80px 32px 72px;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      display: inline-block;
+      font-size: 12px; font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-light);
+      border: 1px solid rgba(6,182,212,0.2);
+      padding: 4px 14px; border-radius: 99px;
+      margin-bottom: 22px;
+    }
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 50px); font-weight: 700;
+      color: var(--text-primary); line-height: 1.2; margin-bottom: 18px;
+    }
+    .hero h1 span { color: var(--primary); }
+    .hero-sub {
+      font-size: 16px; color: var(--text-secondary);
+      max-width: 520px; margin: 0 auto 36px;
+    }
+    .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary { padding: 13px 30px; background: var(--primary); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 500; font-family: inherit; cursor: pointer; transition: background 0.15s; }
+    .btn-primary:hover { background: #3730A3; }
+    .btn-secondary { padding: 13px 30px; background: var(--surface); color: var(--text-primary); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font-size: 15px; font-weight: 500; font-family: inherit; cursor: pointer; transition: background 0.15s; }
+    .btn-secondary:hover { background: #f0f0f0; }
+    .lang-flags { display: flex; gap: 8px; justify-content: center; margin-top: 22px; flex-wrap: wrap; }
+    .lang-flag { font-size: 12px; padding: 4px 12px; border-radius: 99px; background: var(--surface); border: 1px solid var(--border); color: var(--text-secondary); }
+
+    /* Stats */
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1px; background: var(--border); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .stat-card { background: var(--surface); padding: 28px 16px; text-align: center; }
+    .stat-num { font-size: 28px; font-weight: 700; color: var(--primary); }
+    .stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+    /* Section */
+    .section { padding: 60px 32px; max-width: 1100px; margin: 0 auto; }
+    .section-title { font-size: 22px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+    .section-sub { font-size: 14px; color: var(--text-secondary); margin-bottom: 32px; }
+
+    /* Feature cards */
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .feature-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 26px 22px; transition: box-shadow 0.15s, border-color 0.15s; cursor: pointer; }
+    .feature-card:hover { border-color: #818CF8; box-shadow: 0 4px 20px rgba(67,56,202,0.08); }
+    .feature-icon { width: 46px; height: 46px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+    .feature-icon svg { width: 22px; height: 22px; }
+    .fi-purple { background: var(--primary-light); color: var(--primary); }
+    .fi-cyan { background: var(--accent-light); color: var(--accent); }
+    .fi-green { background: #F0FDF4; color: #16A34A; }
+    .fi-amber { background: #FFFBEB; color: #D97706; }
+    .feature-title { font-size: 15px; font-weight: 500; margin-bottom: 6px; }
+    .feature-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+    /* Plan */
+    .plans-bg { background: var(--surface); padding: 60px 32px; }
+    .plan-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; max-width: 1100px; margin: 0 auto; }
+    .plan-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 30px 24px; }
+    .plan-card.featured { border: 2px solid var(--primary); background: var(--surface); position: relative; }
+    .plan-badge { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); font-size: 11px; font-weight: 500; padding: 3px 14px; background: var(--primary); color: #fff; border-radius: 99px; white-space: nowrap; }
+    .plan-name { font-size: 14px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; }
+    .plan-price { font-size: 28px; font-weight: 700; color: var(--text-primary); margin-bottom: 18px; }
+    .plan-price span { font-size: 13px; font-weight: 400; color: var(--text-secondary); }
+    .plan-features { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 26px; }
+    .plan-features li { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--text-secondary); }
+    .plan-features li svg { width: 15px; height: 15px; flex-shrink: 0; margin-top: 2px; color: #16A34A; }
+    .plan-features li.off { color: var(--text-tertiary); }
+    .plan-features li.off svg { color: var(--text-tertiary); }
+    .plan-btn { width: 100%; padding: 11px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; font-family: inherit; cursor: pointer; transition: all 0.15s; }
+    .plan-btn-outline { background: none; border: 1px solid var(--border-strong); color: var(--text-primary); }
+    .plan-btn-outline:hover { background: var(--bg); }
+    .plan-btn-filled { background: var(--primary); border: none; color: #fff; }
+    .plan-btn-filled:hover { background: #3730A3; }
+
+    footer { background: var(--text-primary); color: rgba(255,255,255,0.6); text-align: center; padding: 32px 24px; font-size: 13px; }
+    footer a { color: rgba(255,255,255,0.8); text-decoration: none; }
+    footer a:hover { color: #fff; }
+
+    @media (max-width: 768px) {
+      .nav-item { display: none; }
+      .nav-hamburger { display: flex; }
+      .top-bar { padding: 0 16px; }
+      .brand-bar { padding: 0 16px; }
+      .hero { padding: 56px 16px 48px; }
+      .section { padding: 40px 16px; }
+      .plans-bg { padding: 40px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div class="lang-dropdown" id="langDropdown">
+      <button class="lang-trigger" onclick="toggleLangMenu(event)">
+        <img class="flag-icon" id="activeLangFlag" src="https://flagcdn.com/w40/kr.png" alt="KR" />
+        <span id="activeLangLabel">한국어</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="lang-menu">
+        <button class="active" onclick="setLang('ko')">
+          <img class="flag-icon-menu" src="https://flagcdn.com/w40/kr.png" alt="KR" /> 한국어
+        </button>
+        <button onclick="setLang('en')">
+          <img class="flag-icon-menu" src="https://flagcdn.com/w40/us.png" alt="US" /> English
+        </button>
+        <button onclick="setLang('vn')">
+          <img class="flag-icon-menu" src="https://flagcdn.com/w40/vn.png" alt="VN" /> Tiếng Việt
+        </button>
+      </div>
+    </div>
+    <span class="sep">|</span>
+    <a href="#" id="topLoginBtn">로그인</a>
+    <a href="#" id="topSignupBtn">회원가입</a>
+  </div>
+
+  <!-- Brand bar -->
+  <div class="brand-bar">
+    <a class="brand-logo" href="#">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+      </div>
+      <span class="brand-name">Korea<span>.</span>Univ</span>
+    </a>
+    <div class="brand-right">
+      <button class="btn-outline-sm" id="loginBtn">로그인</button>
+      <button class="btn-filled-sm" id="signupBtn">회원가입</button>
+    </div>
+  </div>
+
+  <!-- Nav bar -->
+  <nav class="nav-bar">
+    <div class="nav-inner">
+
+      <!-- 대학정보 -->
+      <div class="nav-item active">
+        <button data-i18n="nav_univ">대학 정보
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="nav-dropdown">
+          <div class="dropdown-left">
+            <a href="#" class="active">학교 검색
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+            <a href="#">전공 소개
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+            <a href="#">학비 정보
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+            <a href="#">캠퍼스 소개
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+          </div>
+          <div class="dropdown-right">
+            <a href="#">서울 소재 대학교</a>
+            <a href="#">경기 소재 대학교</a>
+            <a href="#">지방 소재 대학교</a>
+            <a href="#">이공계 특성화 대학</a>
+            <a href="#">어문학 전공</a>
+            <a href="#">경영·경제 전공</a>
+            <a href="#">의학·보건 전공</a>
+            <a href="#">예술·체육 전공</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 커뮤니티 -->
+      <div class="nav-item">
+        <button data-i18n="nav_comm">커뮤니티
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="nav-dropdown">
+          <div class="dropdown-left">
+            <a href="#" class="active">자유게시판
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+            <a href="#">후기
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+            <a href="#">이벤트
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+          </div>
+          <div class="dropdown-right">
+            <a href="#">입학 후기</a>
+            <a href="#">기숙사 후기</a>
+            <a href="#">장학금 정보</a>
+            <a href="#">비자 안내</a>
+            <a href="#">동아리 활동</a>
+            <a href="#">외국인 학생 모임</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q&A -->
+      <div class="nav-item">
+        <button>Q&amp;A
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="nav-dropdown">
+          <div class="dropdown-left">
+            <a href="#" class="active">질문하기
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+            <a href="#">자주 묻는 질문
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+          </div>
+          <div class="dropdown-right">
+            <a href="#">입학 절차 문의</a>
+            <a href="#">비자·서류 문의</a>
+            <a href="#">학비·장학금 문의</a>
+            <a href="#">기숙사 문의</a>
+            <a href="#">어드민 미팅 신청</a>
+            <a href="#">이메일 문의</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 공지사항 -->
+      <div class="nav-item">
+        <a href="#" data-i18n="nav_notice">공지사항</a>
+      </div>
+
+      <!-- 플랜 -->
+      <div class="nav-item">
+        <a href="#plans" data-i18n="nav_plan">플랜 안내</a>
+      </div>
+
+      <!-- Mobile hamburger -->
+      <button class="nav-hamburger" id="mobileMenuBtn" aria-label="메뉴">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile overlay + drawer -->
+  <div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
+  <div class="mobile-drawer" id="mobileDrawer">
+    <div class="m-close">
+      <button onclick="closeMobileMenu()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="20" height="20"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="m-section" data-i18n="nav_univ">대학 정보</div>
+    <a href="#">학교 검색</a>
+    <a href="#">전공 소개</a>
+    <a href="#">학비 정보</a>
+    <a href="#">캠퍼스 소개</a>
+    <hr>
+    <div class="m-section" data-i18n="nav_comm">커뮤니티</div>
+    <a href="#">자유게시판</a>
+    <a href="#">후기</a>
+    <a href="#">이벤트</a>
+    <hr>
+    <div class="m-section">Q&A</div>
+    <a href="#">질문하기</a>
+    <a href="#">자주 묻는 질문</a>
+    <hr>
+    <a href="#" data-i18n="nav_notice">공지사항</a>
+    <a href="#plans" data-i18n="nav_plan">플랜 안내</a>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-eyebrow" data-i18n="hero_eyebrow">외국인을 위한 한국 대학 정보</div>
+    <h1 data-i18n="hero_h1">한국 대학교, <span>쉽게 찾고</span><br>바로 연결하세요</h1>
+    <p class="hero-sub" data-i18n="hero_sub">학교 정보부터 전공·학비·캠퍼스까지 — 어드민이 직접 답변하는 커뮤니티</p>
+    <div class="hero-actions">
+      <button class="btn-primary" data-i18n="hero_cta1">대학 검색하기</button>
+      <button class="btn-secondary" data-i18n="hero_cta2">커뮤니티 둘러보기</button>
+    </div>
+    <div class="lang-flags">
+      <span class="lang-flag">🇰🇷 한국어</span>
+      <span class="lang-flag">🇺🇸 English</span>
+      <span class="lang-flag">🇻🇳 Tiếng Việt</span>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card"><div class="stat-num">200+</div><div class="stat-label" data-i18n="stat1">등록 대학교</div></div>
+    <div class="stat-card"><div class="stat-num">3개</div><div class="stat-label" data-i18n="stat2">지원 언어</div></div>
+    <div class="stat-card"><div class="stat-num">24h</div><div class="stat-label" data-i18n="stat3">어드민 응답</div></div>
+    <div class="stat-card"><div class="stat-num">Free</div><div class="stat-label" data-i18n="stat4">기본 플랜</div></div>
+  </div>
+
+  <!-- Features -->
+  <section class="section" id="features">
+    <p class="section-sub" data-i18n="feat_sub">무엇을 도와드릴까요?</p>
+    <h2 class="section-title" data-i18n="feat_title">한국 대학 정보를 한 곳에서</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon fi-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <div class="feature-title" data-i18n="feat1_title">학교 검색</div>
+        <div class="feature-desc" data-i18n="feat1_desc">위치·전공·학비 기준으로 원하는 대학교를 빠르게 찾아보세요.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+        <div class="feature-title" data-i18n="feat2_title">커뮤니티 Q&A</div>
+        <div class="feature-desc" data-i18n="feat2_desc">한국어·영어·베트남어로 질문하면 어드민이 직접 답변합니다.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="feature-title" data-i18n="feat3_title">후기 & 경험담</div>
+        <div class="feature-desc" data-i18n="feat3_desc">실제 재학생과 졸업생의 후기로 캠퍼스 생활을 미리 경험하세요.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+        <div class="feature-title" data-i18n="feat4_title">어드민 직접 연결</div>
+        <div class="feature-desc" data-i18n="feat4_desc">Advance 플랜부터 미팅·이메일로 담당자와 직접 소통 가능합니다.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Plans -->
+  <div class="plans-bg" id="plans">
+    <div style="max-width:1100px;margin:0 auto">
+      <p class="section-sub" data-i18n="plan_sub">필요에 맞게 선택하세요</p>
+      <h2 class="section-title" data-i18n="plan_title">플랜 안내</h2>
+      <div class="plan-grid">
+        <div class="plan-card">
+          <div class="plan-name">Basic</div>
+          <div class="plan-price">무료 <span>/ 영구</span></div>
+          <ul class="plan-features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="p1_f1">대학 정보 열람</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="p1_f2">커뮤니티 읽기</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="p1_f3">코멘트 달기</span></li>
+            <li class="off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span data-i18n="p1_f4">Q&A 질문하기</span></li>
+            <li class="off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span data-i18n="p1_f5">어드민 직접 연결</span></li>
+          </ul>
+          <button class="plan-btn plan-btn-outline" data-i18n="btn_start_free">무료로 시작</button>
+        </div>
+        <div class="plan-card featured">
+          <div class="plan-badge" data-i18n="badge_popular">추천</div>
+          <div class="plan-name">Advance</div>
+          <div class="plan-price">₩9,900 <span>/ 월</span></div>
+          <ul class="plan-features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="p2_f1">Basic 모든 기능</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="p2_f2">Q&A 질문하기</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="p2_f3">어드민 미팅·이메일</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="p2_f4">한국어/영어/베트남어 답변</span></li>
+            <li class="off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span data-i18n="p2_f5">여러 학교 비교</span></li>
+          </ul>
+          <button class="plan-btn plan-btn-filled" data-i18n="btn_start_advance">Advance 시작</button>
+        </div>
+        <div class="plan-card">
+          <div class="plan-name">Professional</div>
+          <div class="plan-price">₩24,900 <span>/ 월</span></div>
+          <ul class="plan-features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="p3_f1">Advance 모든 기능</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="p3_f2">여러 학교 동시 비교</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="p3_f3">커뮤니티 전체 접근</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="p3_f4">우선 어드민 배정</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="p3_f5">전문가 커뮤니티 참여</span></li>
+          </ul>
+          <button class="plan-btn plan-btn-outline" data-i18n="btn_start_pro">Professional 시작</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2026 Korea University Community &nbsp;·&nbsp; <a href="#">이용약관</a> &nbsp;·&nbsp; <a href="#">개인정보처리방침</a></p>
+  </footer>
+
+  <script>
+    const i18n = {
+      ko: {
+        nav_univ: '대학 정보', nav_comm: '커뮤니티', nav_notice: '공지사항', nav_plan: '플랜 안내',
+        hero_eyebrow: '외국인을 위한 한국 대학 정보',
+        hero_h1: '한국 대학교, <span>쉽게 찾고</span><br>바로 연결하세요',
+        hero_sub: '학교 정보부터 전공·학비·캠퍼스까지 — 어드민이 직접 답변하는 커뮤니티',
+        hero_cta1: '대학 검색하기', hero_cta2: '커뮤니티 둘러보기',
+        stat1: '등록 대학교', stat2: '지원 언어', stat3: '어드민 응답', stat4: '기본 플랜',
+        feat_sub: '무엇을 도와드릴까요?', feat_title: '한국 대학 정보를 한 곳에서',
+        feat1_title: '학교 검색', feat1_desc: '위치·전공·학비 기준으로 원하는 대학교를 빠르게 찾아보세요.',
+        feat2_title: '커뮤니티 Q&A', feat2_desc: '한국어·영어·베트남어로 질문하면 어드민이 직접 답변합니다.',
+        feat3_title: '후기 & 경험담', feat3_desc: '실제 재학생과 졸업생의 후기로 캠퍼스 생활을 미리 경험하세요.',
+        feat4_title: '어드민 직접 연결', feat4_desc: 'Advance 플랜부터 미팅·이메일로 담당자와 직접 소통 가능합니다.',
+        plan_sub: '필요에 맞게 선택하세요', plan_title: '플랜 안내',
+        p1_f1: '대학 정보 열람', p1_f2: '커뮤니티 읽기', p1_f3: '코멘트 달기', p1_f4: 'Q&A 질문하기', p1_f5: '어드민 직접 연결',
+        p2_f1: 'Basic 모든 기능', p2_f2: 'Q&A 질문하기', p2_f3: '어드민 미팅·이메일', p2_f4: '한국어/영어/베트남어 답변', p2_f5: '여러 학교 비교',
+        p3_f1: 'Advance 모든 기능', p3_f2: '여러 학교 동시 비교', p3_f3: '커뮤니티 전체 접근', p3_f4: '우선 어드민 배정', p3_f5: '전문가 커뮤니티 참여',
+        badge_popular: '추천', btn_start_free: '무료로 시작', btn_start_advance: 'Advance 시작', btn_start_pro: 'Professional 시작',
+        login: '로그인', signup: '회원가입'
+      },
+      en: {
+        nav_univ: 'Universities', nav_comm: 'Community', nav_notice: 'Notice', nav_plan: 'Plans',
+        hero_eyebrow: 'Korean University Info for International Students',
+        hero_h1: 'Find Korean universities <span>easily</span><br>and connect directly',
+        hero_sub: 'From school info to majors, tuition & campus life — a community with direct admin support',
+        hero_cta1: 'Search Universities', hero_cta2: 'Browse Community',
+        stat1: 'Universities', stat2: 'Languages', stat3: 'Admin Response', stat4: 'Basic Plan',
+        feat_sub: 'How can we help?', feat_title: 'All Korean University Info in One Place',
+        feat1_title: 'School Search', feat1_desc: 'Find the right university by location, major, or tuition quickly.',
+        feat2_title: 'Community Q&A', feat2_desc: 'Ask in Korean, English, or Vietnamese — admins answer directly.',
+        feat3_title: 'Reviews', feat3_desc: 'Read real student reviews and experience campus life before you go.',
+        feat4_title: 'Direct Admin Contact', feat4_desc: 'From the Advance plan, connect directly via meeting or email.',
+        plan_sub: 'Choose what fits you', plan_title: 'Plans',
+        p1_f1: 'View university info', p1_f2: 'Read community', p1_f3: 'Leave comments', p1_f4: 'Ask Q&A', p1_f5: 'Direct admin contact',
+        p2_f1: 'All Basic features', p2_f2: 'Ask Q&A', p2_f3: 'Admin meeting & email', p2_f4: 'KO / EN / VN answers', p2_f5: 'Compare schools',
+        p3_f1: 'All Advance features', p3_f2: 'Compare multiple schools', p3_f3: 'Full community access', p3_f4: 'Priority admin', p3_f5: 'Join expert community',
+        badge_popular: 'Recommended', btn_start_free: 'Start Free', btn_start_advance: 'Start Advance', btn_start_pro: 'Start Professional',
+        login: 'Login', signup: 'Sign Up'
+      },
+      vn: {
+        nav_univ: 'Đại học', nav_comm: 'Cộng đồng', nav_notice: 'Thông báo', nav_plan: 'Gói dịch vụ',
+        hero_eyebrow: 'Thông tin đại học Hàn Quốc cho người nước ngoài',
+        hero_h1: 'Tìm trường đại học Hàn Quốc <span>dễ dàng</span><br>và kết nối ngay',
+        hero_sub: 'Từ thông tin trường đến ngành học, học phí & khuôn viên — cộng đồng với sự hỗ trợ trực tiếp',
+        hero_cta1: 'Tìm trường', hero_cta2: 'Khám phá cộng đồng',
+        stat1: 'Trường đại học', stat2: 'Ngôn ngữ', stat3: 'Phản hồi admin', stat4: 'Gói cơ bản',
+        feat_sub: 'Chúng tôi có thể giúp gì?', feat_title: 'Tất cả thông tin đại học Hàn Quốc tại một nơi',
+        feat1_title: 'Tìm trường', feat1_desc: 'Tìm trường phù hợp theo vị trí, ngành học hoặc học phí nhanh chóng.',
+        feat2_title: 'Q&A cộng đồng', feat2_desc: 'Hỏi bằng tiếng Hàn, tiếng Anh hoặc tiếng Việt — admin trả lời trực tiếp.',
+        feat3_title: 'Đánh giá', feat3_desc: 'Đọc đánh giá từ sinh viên thực tế và trải nghiệm cuộc sống campus.',
+        feat4_title: 'Liên hệ admin trực tiếp', feat4_desc: 'Từ gói Advance, kết nối trực tiếp qua cuộc họp hoặc email.',
+        plan_sub: 'Chọn gói phù hợp', plan_title: 'Các gói dịch vụ',
+        p1_f1: 'Xem thông tin trường', p1_f2: 'Đọc cộng đồng', p1_f3: 'Để lại bình luận', p1_f4: 'Đặt câu hỏi Q&A', p1_f5: 'Liên hệ admin',
+        p2_f1: 'Tất cả tính năng Basic', p2_f2: 'Đặt câu hỏi Q&A', p2_f3: 'Họp & email với admin', p2_f4: 'Trả lời KO / EN / VN', p2_f5: 'So sánh nhiều trường',
+        p3_f1: 'Tất cả tính năng Advance', p3_f2: 'So sánh nhiều trường cùng lúc', p3_f3: 'Toàn quyền truy cập cộng đồng', p3_f4: 'Admin ưu tiên', p3_f5: 'Tham gia cộng đồng chuyên gia',
+        badge_popular: 'Đề xuất', btn_start_free: 'Bắt đầu miễn phí', btn_start_advance: 'Bắt đầu Advance', btn_start_pro: 'Bắt đầu Professional',
+        login: 'Đăng nhập', signup: 'Đăng ký'
+      }
+    };
+
+    const langMeta = {
+      ko: { flag: 'https://flagcdn.com/w40/kr.png', label: '한국어' },
+      en: { flag: 'https://flagcdn.com/w40/us.png', label: 'English' },
+      vn: { flag: 'https://flagcdn.com/w40/vn.png', label: 'Tiếng Việt' }
+    };
+
+    function toggleLangMenu(e) {
+      e.stopPropagation();
+      document.getElementById('langDropdown').classList.toggle('open');
+    }
+
+    function setLang(lang) {
+      // update dropdown trigger
+      document.getElementById('activeLangFlag').src = langMeta[lang].flag;
+      document.getElementById('activeLangLabel').textContent = langMeta[lang].label;
+      document.querySelectorAll('.lang-menu button').forEach(b => b.classList.remove('active'));
+      const map = { ko: 0, en: 1, vn: 2 };
+      document.querySelectorAll('.lang-menu button')[map[lang]].classList.add('active');
+      // close dropdown
+      document.getElementById('langDropdown').classList.remove('open');
+      // update page text
+      const t = i18n[lang];
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key] !== undefined) el.innerHTML = t[key];
+      });
+      document.getElementById('loginBtn').textContent = t.login;
+      document.getElementById('signupBtn').textContent = t.signup;
+      document.getElementById('topLoginBtn').textContent = t.login;
+      document.getElementById('topSignupBtn').textContent = t.signup;
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', () => {
+      document.getElementById('langDropdown').classList.remove('open');
+    });
+
+    function closeMobileMenu() {
+      document.getElementById('mobileDrawer').classList.remove('open');
+      document.getElementById('mobileOverlay').classList.remove('visible');
+      document.body.style.overflow = '';
+    }
+    document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+      document.getElementById('mobileDrawer').classList.add('open');
+      document.getElementById('mobileOverlay').classList.add('visible');
+      document.body.style.overflow = 'hidden';
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMobileMenu(); });
+  </script>
+</body>
+</html>

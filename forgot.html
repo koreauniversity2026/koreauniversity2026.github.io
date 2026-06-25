@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>비밀번호 찾기 — Korea.Univ</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%234338CA'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='700' font-size='36' fill='white'>K</text></svg>" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #4338CA;
+      --primary-light: #EEF2FF;
+      --primary-hover: #3730A3;
+      --accent: #06B6D4;
+      --bg: #F8F9FC;
+      --surface: #FFFFFF;
+      --border: rgba(0,0,0,0.1);
+      --border-focus: #4338CA;
+      --text-primary: #111827;
+      --text-secondary: #6B7280;
+      --text-tertiary: #9CA3AF;
+      --error: #DC2626;
+      --success: #16A34A;
+      --radius: 10px;
+    }
+    html, body {
+      min-height: 100vh;
+      font-family: 'Noto Sans KR', 'Noto Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* ── Layout ── */
+    .page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* ── Left panel ── */
+    .left-panel {
+      background: linear-gradient(145deg, #312E81 0%, #4338CA 50%, #06B6D4 100%);
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: flex-start;
+      padding: 60px 56px;
+      position: relative; overflow: hidden;
+    }
+    .left-panel::before {
+      content: ''; position: absolute;
+      width: 400px; height: 400px; border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      top: -100px; right: -100px;
+    }
+    .left-panel::after {
+      content: ''; position: absolute;
+      width: 300px; height: 300px; border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      bottom: -80px; left: -80px;
+    }
+    .left-brand {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 56px; text-decoration: none;
+      position: relative; z-index: 1;
+    }
+    .left-brand-icon {
+      width: 42px; height: 42px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .left-brand-icon svg { width: 22px; height: 22px; color: #fff; }
+    .left-brand-name { font-size: 20px; font-weight: 700; color: #fff; }
+
+    .left-steps { position: relative; z-index: 1; }
+    .left-steps-title {
+      font-size: 13px; font-weight: 500;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.06em; text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+    .step-item {
+      display: flex; align-items: flex-start; gap: 16px;
+      margin-bottom: 28px;
+      position: relative;
+    }
+    .step-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 19px; top: 40px;
+      width: 2px; height: calc(100% + 8px);
+      background: rgba(255,255,255,0.15);
+    }
+    .step-num {
+      width: 38px; height: 38px; flex-shrink: 0;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      border: 1.5px solid rgba(255,255,255,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: #fff;
+    }
+    .step-num.done {
+      background: rgba(165,243,252,0.2);
+      border-color: #A5F3FC;
+      color: #A5F3FC;
+    }
+    .step-num.active {
+      background: rgba(255,255,255,0.25);
+      border-color: #fff;
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.1);
+    }
+    .step-text { padding-top: 8px; }
+    .step-title { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+    .step-desc { font-size: 12px; color: rgba(255,255,255,0.6); }
+
+    /* ── Right panel ── */
+    .right-panel {
+      background: var(--surface);
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 48px 40px;
+      overflow-y: auto;
+    }
+    .form-box { width: 100%; max-width: 400px; }
+
+    /* Top nav */
+    .form-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 40px;
+    }
+    .back-btn {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; color: var(--text-secondary);
+      text-decoration: none;
+      padding: 6px 10px; border-radius: var(--radius);
+      transition: background 0.15s, color 0.15s;
+    }
+    .back-btn:hover { background: var(--bg); color: var(--primary); }
+    .back-btn svg { width: 15px; height: 15px; }
+
+    /* Lang dropdown (same as signup) */
+    .form-lang-dropdown { position: relative; }
+    .form-lang-trigger {
+      display: flex; align-items: center; gap: 7px;
+      padding: 6px 12px 6px 8px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer; font-family: inherit;
+      font-size: 13px; font-weight: 500;
+      color: var(--text-primary);
+      transition: border-color 0.15s;
+    }
+    .form-lang-trigger:hover { border-color: var(--primary); }
+    .form-flag-icon { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); }
+    .form-lang-chev { width: 12px; height: 12px; color: var(--text-tertiary); transition: transform 0.2s; }
+    .form-lang-dropdown.open .form-lang-chev { transform: rotate(180deg); }
+    .form-lang-menu {
+      display: none; position: absolute; top: calc(100% + 6px); right: 0;
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--radius); box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      min-width: 160px; z-index: 500; overflow: hidden;
+    }
+    .form-lang-dropdown.open .form-lang-menu { display: block; }
+    .form-lang-menu button {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; padding: 10px 14px; font-size: 13px; font-family: inherit;
+      color: var(--text-secondary); background: none; border: none; cursor: pointer;
+      transition: background 0.13s;
+    }
+    .form-lang-menu button:hover { background: var(--primary-light); color: var(--primary); }
+    .form-lang-menu button.active { color: var(--primary); font-weight: 600; background: var(--primary-light); }
+    .form-flag-icon-sm { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); flex-shrink: 0; }
+
+    /* Step cards */
+    .step-card { display: none; }
+    .step-card.active { display: block; }
+
+    /* Icon */
+    .card-icon {
+      width: 64px; height: 64px; border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 22px;
+    }
+    .card-icon svg { width: 28px; height: 28px; }
+    .icon-lock { background: var(--primary-light); color: var(--primary); border: 1.5px solid #C7D2FE; }
+    .icon-mail { background: #ECFEFF; color: var(--accent); border: 1.5px solid #A5F3FC; }
+    .icon-key  { background: #FFF7ED; color: #EA580C; border: 1.5px solid #FED7AA; }
+    .icon-done { background: #F0FDF4; color: var(--success); border: 1.5px solid #BBF7D0; }
+
+    .card-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+    .card-sub { font-size: 14px; color: var(--text-secondary); margin-bottom: 28px; line-height: 1.6; }
+
+    /* Progress dots */
+    .progress-dots {
+      display: flex; gap: 6px; margin-bottom: 32px;
+    }
+    .dot {
+      height: 4px; border-radius: 2px;
+      background: var(--border); transition: all 0.3s;
+    }
+    .dot.done { background: var(--primary); width: 24px; }
+    .dot.active { background: var(--primary); width: 24px; opacity: 0.5; }
+    .dot.pending { background: var(--border); width: 16px; }
+
+    /* Field */
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+    .field-wrap { position: relative; }
+    .field input {
+      width: 100%; padding: 11px 14px;
+      border: 1.5px solid var(--border); border-radius: var(--radius);
+      font-size: 14px; font-family: inherit; color: var(--text-primary);
+      background: var(--surface); outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .field input::placeholder { color: var(--text-tertiary); }
+    .field input:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(67,56,202,0.1); }
+    .field input.error { border-color: var(--error); box-shadow: 0 0 0 3px rgba(220,38,38,0.08); }
+    .field-err { font-size: 12px; color: var(--error); margin-top: 5px; display: none; }
+    .field-err.visible { display: block; }
+    .field-hint { font-size: 12px; color: var(--text-tertiary); margin-top: 5px; }
+
+    /* Password toggle */
+    .pw-toggle {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: var(--text-tertiary); display: flex; align-items: center;
+      transition: color 0.15s;
+    }
+    .pw-toggle:hover { color: var(--text-secondary); }
+    .pw-toggle svg { width: 17px; height: 17px; }
+    .field input.has-toggle { padding-right: 40px; }
+
+    /* Password strength */
+    .pw-strength { margin-top: 8px; }
+    .pw-strength-bar { display: flex; gap: 4px; margin-bottom: 5px; }
+    .pw-bar-seg { flex: 1; height: 4px; border-radius: 2px; background: var(--border); transition: background 0.25s; }
+    .pw-bar-seg.weak { background: #DC2626; }
+    .pw-bar-seg.fair { background: #F59E0B; }
+    .pw-bar-seg.strong { background: #16A34A; }
+    .pw-strength-label { font-size: 11px; }
+
+    /* Email badge */
+    .email-badge {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 12px 16px;
+      font-size: 14px; font-weight: 500; color: var(--primary);
+      margin-bottom: 24px;
+    }
+    .email-badge svg { color: var(--text-secondary); flex-shrink: 0; width: 15px; height: 15px; }
+
+    /* OTP single input */
+    .otp-single-wrap { margin-bottom: 8px; }
+    .otp-single {
+      width: 100%; height: 60px;
+      border: 1.5px solid var(--border); border-radius: var(--radius);
+      font-size: 28px; font-weight: 700;
+      text-align: center; letter-spacing: 12px;
+      font-family: 'Courier New', monospace;
+      color: var(--primary); outline: none;
+      background: var(--surface);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .otp-single::placeholder { color: var(--text-tertiary); letter-spacing: 8px; font-size: 20px; }
+    .otp-single:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(67,56,202,0.1); }
+    .otp-single.filled { border-color: var(--primary); background: var(--primary-light); }
+    .otp-single.error { border-color: var(--error); box-shadow: 0 0 0 3px rgba(220,38,38,0.08); }
+
+    /* Timer */
+    .otp-timer {
+      font-size: 12px; color: var(--text-tertiary);
+      text-align: right; margin-bottom: 20px;
+    }
+    .otp-timer span { color: var(--primary); font-weight: 500; }
+
+    /* Buttons */
+    .submit-btn {
+      width: 100%; padding: 13px;
+      background: var(--primary); color: #fff; border: none;
+      border-radius: var(--radius);
+      font-size: 15px; font-weight: 600; font-family: inherit;
+      cursor: pointer; transition: background 0.15s; margin-bottom: 16px;
+    }
+    .submit-btn:hover { background: var(--primary-hover); }
+    .submit-btn:disabled { background: #A5B4FC; cursor: not-allowed; }
+    .ghost-btn {
+      width: 100%; padding: 11px;
+      background: none; border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 14px; font-weight: 500; font-family: inherit;
+      color: var(--text-secondary); cursor: pointer;
+      transition: all 0.15s; margin-bottom: 16px;
+    }
+    .ghost-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+    .bottom-text { text-align: center; font-size: 13px; color: var(--text-secondary); }
+    .bottom-text a { color: var(--primary); text-decoration: none; font-weight: 500; }
+    .bottom-text a:hover { text-decoration: underline; }
+
+    /* Success checkmark animation */
+    .success-circle {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: #F0FDF4; border: 2px solid #BBF7D0;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .success-circle svg { width: 32px; height: 32px; color: var(--success); }
+
+    @media (max-width: 768px) {
+      .page { grid-template-columns: 1fr; }
+      .left-panel { display: none; }
+      .right-panel { padding: 32px 20px; min-height: 100vh; justify-content: flex-start; padding-top: 40px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Left panel -->
+  <div class="left-panel">
+    <a class="left-brand" href="index.html">
+      <div class="left-brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+      </div>
+      <span class="left-brand-name">Korea.Univ</span>
+    </a>
+
+    <div class="left-steps">
+      <p class="left-steps-title" id="left-steps-title">비밀번호 재설정 단계</p>
+
+      <div class="step-item">
+        <div class="step-num active" id="left-step1">1</div>
+        <div class="step-text">
+          <div class="step-title" id="left-s1-title">이메일 입력</div>
+          <div class="step-desc" id="left-s1-desc">가입한 이메일 주소를 입력해주세요</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num pending" id="left-step2">2</div>
+        <div class="step-text">
+          <div class="step-title" id="left-s2-title">인증 코드 확인</div>
+          <div class="step-desc" id="left-s2-desc">이메일로 전송된 6자리 코드를 입력</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num pending" id="left-step3">3</div>
+        <div class="step-text">
+          <div class="step-title" id="left-s3-title">새 비밀번호 설정</div>
+          <div class="step-desc" id="left-s3-desc">새로운 비밀번호를 설정하세요</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="right-panel">
+    <div class="form-box">
+
+      <!-- Top nav -->
+      <div class="form-top">
+        <a class="back-btn" href="signup.html?tab=login">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          <span id="back-label">로그인으로 돌아가기</span>
+        </a>
+
+        <!-- Lang dropdown -->
+        <div class="form-lang-dropdown" id="langDropdown">
+          <button class="form-lang-trigger" onclick="toggleLang(event)">
+            <img class="form-flag-icon" id="activeLangFlag" src="https://flagcdn.com/w40/kr.png" alt="KR" />
+            <span id="activeLangLabel">한국어</span>
+            <svg class="form-lang-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="form-lang-menu">
+            <button class="active" onclick="setLang('ko')"><img class="form-flag-icon-sm" src="https://flagcdn.com/w40/kr.png" alt="KR" /> 한국어</button>
+            <button onclick="setLang('en')"><img class="form-flag-icon-sm" src="https://flagcdn.com/w40/us.png" alt="US" /> English</button>
+            <button onclick="setLang('vn')"><img class="form-flag-icon-sm" src="https://flagcdn.com/w40/vn.png" alt="VN" /> Tiếng Việt</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress dots -->
+      <div class="progress-dots">
+        <div class="dot active" id="dot1"></div>
+        <div class="dot pending" id="dot2"></div>
+        <div class="dot pending" id="dot3"></div>
+      </div>
+
+      <!-- ── STEP 1: 이메일 입력 ── -->
+      <div class="step-card active" id="step1">
+        <div class="card-icon icon-lock">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h2 class="card-title" id="s1-title">비밀번호 찾기</h2>
+        <p class="card-sub" id="s1-sub">가입한 이메일을 입력하면 인증 코드를 보내드려요.</p>
+
+        <div class="field">
+          <label for="email-input" id="s1-email-label">이메일 (ID)</label>
+          <input type="email" id="email-input" placeholder="example@email.com" oninput="clearFieldErr('email-err', 'email-input')" />
+          <div class="field-err" id="email-err">올바른 이메일 주소를 입력해주세요.</div>
+        </div>
+
+        <button class="submit-btn" id="s1-btn" onclick="goStep2()">인증 코드 받기</button>
+        <div class="bottom-text">
+          <span id="s1-remember">기억났어요?</span> <a href="signup.html?tab=login" id="s1-login-link">로그인하기</a>
+        </div>
+      </div>
+
+      <!-- ── STEP 2: 인증 코드 ── -->
+      <div class="step-card" id="step2">
+        <div class="card-icon icon-mail">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <h2 class="card-title" id="s2-title">인증 코드 입력</h2>
+        <p class="card-sub" id="s2-sub">아래 이메일로 6자리 코드를 보냈어요.</p>
+
+        <div class="email-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <span id="display-email">-</span>
+        </div>
+
+        <div class="otp-single-wrap">
+          <input class="otp-single" type="text" id="otp-single" maxlength="6" placeholder="_ _ _ _ _ _" oninput="otpSingleInput(this)" />
+        </div>
+        <div class="field-err" id="otp-err" style="margin-bottom:8px; text-align:center;">인증 코드가 올바르지 않습니다.</div>
+
+        <div class="otp-timer">
+          <span id="timer-label">남은 시간:</span> <span id="timer">05:00</span>
+        </div>
+
+        <button class="submit-btn" id="s2-btn" onclick="goStep3()">확인</button>
+        <button class="ghost-btn" id="s2-resend" onclick="resendCode()">코드 다시 받기</button>
+        <div class="bottom-text">
+          <a href="#" onclick="goBack(2)" id="s2-back">← 이메일 변경</a>
+        </div>
+      </div>
+
+      <!-- ── STEP 3: 새 비밀번호 ── -->
+      <div class="step-card" id="step3">
+        <div class="card-icon icon-key">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        </div>
+        <h2 class="card-title" id="s3-title">새 비밀번호 설정</h2>
+        <p class="card-sub" id="s3-sub">이전과 다른 새로운 비밀번호를 설정해주세요.</p>
+
+        <div class="field">
+          <label for="new-pw" id="s3-pw-label">새 비밀번호</label>
+          <div class="field-wrap">
+            <input type="password" id="new-pw" class="has-toggle" placeholder="8자 이상 입력" oninput="checkNewPwStrength(); clearFieldErr('new-pw-err','new-pw')" />
+            <button class="pw-toggle" type="button" onclick="togglePw('new-pw', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="pw-strength" id="new-pw-strength" style="display:none;">
+            <div class="pw-strength-bar">
+              <div class="pw-bar-seg" id="ns1"></div>
+              <div class="pw-bar-seg" id="ns2"></div>
+              <div class="pw-bar-seg" id="ns3"></div>
+            </div>
+            <div class="pw-strength-label" id="new-pw-label"></div>
+          </div>
+          <div class="field-err" id="new-pw-err">비밀번호는 8자 이상이어야 합니다.</div>
+        </div>
+
+        <div class="field">
+          <label for="confirm-pw" id="s3-pw2-label">비밀번호 확인</label>
+          <div class="field-wrap">
+            <input type="password" id="confirm-pw" class="has-toggle" placeholder="비밀번호를 다시 입력" oninput="clearFieldErr('confirm-pw-err','confirm-pw')" />
+            <button class="pw-toggle" type="button" onclick="togglePw('confirm-pw', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="field-err" id="confirm-pw-err">비밀번호가 일치하지 않습니다.</div>
+        </div>
+
+        <button class="submit-btn" id="s3-btn" onclick="goStep4()">비밀번호 변경하기</button>
+        <div class="bottom-text">
+          <a href="#" onclick="goBack(3)" id="s3-back">← 뒤로가기</a>
+        </div>
+      </div>
+
+      <!-- ── STEP 4: 완료 ── -->
+      <div class="step-card" id="step4" style="text-align:center; padding: 20px 0;">
+        <div class="success-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h2 class="card-title" id="s4-title">비밀번호 변경 완료! 🎉</h2>
+        <p class="card-sub" id="s4-sub">새 비밀번호로 로그인하세요.<br>3초 후 로그인 페이지로 이동합니다.</p>
+        <button class="submit-btn" id="s4-btn" onclick="window.location.href='signup.html?tab=login'">로그인하러 가기</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── i18n ──
+  const i18n = {
+    ko: {
+      back: '로그인으로 돌아가기',
+      left_title: '비밀번호 재설정 단계',
+      ls1: '이메일 입력', ls1d: '가입한 이메일 주소를 입력해주세요',
+      ls2: '인증 코드 확인', ls2d: '이메일로 전송된 6자리 코드를 입력',
+      ls3: '새 비밀번호 설정', ls3d: '새로운 비밀번호를 설정하세요',
+      s1_title: '비밀번호 찾기', s1_sub: '가입한 이메일을 입력하면 인증 코드를 보내드려요.',
+      s1_label: '이메일 (ID)', s1_btn: '인증 코드 받기', s1_remember: '기억났어요?', s1_login: '로그인하기',
+      s1_err: '올바른 이메일 주소를 입력해주세요.',
+      s2_title: '인증 코드 입력', s2_sub: '아래 이메일로 6자리 코드를 보냈어요.',
+      s2_btn: '확인', s2_resend: '코드 다시 받기', s2_back: '← 이메일 변경',
+      s2_timer: '남은 시간:', s2_err: '인증 코드가 올바르지 않습니다.',
+      s3_title: '새 비밀번호 설정', s3_sub: '이전과 다른 새로운 비밀번호를 설정해주세요.',
+      s3_pw: '새 비밀번호', s3_pw2: '비밀번호 확인',
+      s3_btn: '비밀번호 변경하기', s3_back: '← 뒤로가기',
+      s3_err1: '비밀번호는 8자 이상이어야 합니다.', s3_err2: '비밀번호가 일치하지 않습니다.',
+      s4_title: '비밀번호 변경 완료! 🎉', s4_sub: '새 비밀번호로 로그인하세요.<br>3초 후 로그인 페이지로 이동합니다.',
+      s4_btn: '로그인하러 가기',
+      pw_weak: '약함', pw_fair: '보통', pw_strong: '강함 👍',
+    },
+    en: {
+      back: '← Back to Login',
+      left_title: 'Password Reset Steps',
+      ls1: 'Enter Email', ls1d: 'Enter your registered email address',
+      ls2: 'Verify Code', ls2d: 'Enter the 6-digit code sent to your email',
+      ls3: 'Set New Password', ls3d: 'Create a new secure password',
+      s1_title: 'Forgot Password', s1_sub: 'Enter your email and we\'ll send you a verification code.',
+      s1_label: 'Email (ID)', s1_btn: 'Send Code', s1_remember: 'Remembered it?', s1_login: 'Log in',
+      s1_err: 'Please enter a valid email address.',
+      s2_title: 'Enter Verification Code', s2_sub: 'We sent a 6-digit code to:',
+      s2_btn: 'Verify', s2_resend: 'Resend Code', s2_back: '← Change Email',
+      s2_timer: 'Time remaining:', s2_err: 'The code is incorrect. Please try again.',
+      s3_title: 'Set New Password', s3_sub: 'Create a password different from your previous one.',
+      s3_pw: 'New Password', s3_pw2: 'Confirm Password',
+      s3_btn: 'Change Password', s3_back: '← Go Back',
+      s3_err1: 'Password must be at least 8 characters.', s3_err2: 'Passwords do not match.',
+      s4_title: 'Password Changed! 🎉', s4_sub: 'Log in with your new password.<br>Redirecting in 3 seconds.',
+      s4_btn: 'Go to Login',
+      pw_weak: 'Weak', pw_fair: 'Fair', pw_strong: 'Strong 👍',
+    },
+    vn: {
+      back: '← Quay lại đăng nhập',
+      left_title: 'Các bước đặt lại mật khẩu',
+      ls1: 'Nhập email', ls1d: 'Nhập địa chỉ email đã đăng ký',
+      ls2: 'Xác minh mã', ls2d: 'Nhập mã 6 chữ số được gửi đến email',
+      ls3: 'Đặt mật khẩu mới', ls3d: 'Tạo mật khẩu mới an toàn',
+      s1_title: 'Quên mật khẩu', s1_sub: 'Nhập email của bạn và chúng tôi sẽ gửi mã xác minh.',
+      s1_label: 'Email (ID)', s1_btn: 'Gửi mã', s1_remember: 'Nhớ ra rồi?', s1_login: 'Đăng nhập',
+      s1_err: 'Vui lòng nhập địa chỉ email hợp lệ.',
+      s2_title: 'Nhập mã xác minh', s2_sub: 'Chúng tôi đã gửi mã 6 chữ số đến:',
+      s2_btn: 'Xác nhận', s2_resend: 'Gửi lại mã', s2_back: '← Đổi email',
+      s2_timer: 'Thời gian còn lại:', s2_err: 'Mã không đúng. Vui lòng thử lại.',
+      s3_title: 'Đặt mật khẩu mới', s3_sub: 'Tạo mật khẩu khác với mật khẩu trước.',
+      s3_pw: 'Mật khẩu mới', s3_pw2: 'Xác nhận mật khẩu',
+      s3_btn: 'Đổi mật khẩu', s3_back: '← Quay lại',
+      s3_err1: 'Mật khẩu phải có ít nhất 8 ký tự.', s3_err2: 'Mật khẩu không khớp.',
+      s4_title: 'Đổi mật khẩu thành công! 🎉', s4_sub: 'Đăng nhập bằng mật khẩu mới.<br>Chuyển hướng sau 3 giây.',
+      s4_btn: 'Đến trang đăng nhập',
+      pw_weak: 'Yếu', pw_fair: 'Trung bình', pw_strong: 'Mạnh 👍',
+    }
+  };
+
+  const langMeta = {
+    ko: { flag: 'https://flagcdn.com/w40/kr.png', label: '한국어' },
+    en: { flag: 'https://flagcdn.com/w40/us.png', label: 'English' },
+    vn: { flag: 'https://flagcdn.com/w40/vn.png', label: 'Tiếng Việt' },
+  };
+
+  let currentLang = 'ko';
+  let timerInterval = null;
+  let currentStep = 1;
+
+  function toggleLang(e) {
+    e.stopPropagation();
+    document.getElementById('langDropdown').classList.toggle('open');
+  }
+
+  function setLang(lang) {
+    currentLang = lang;
+    document.getElementById('activeLangFlag').src = langMeta[lang].flag;
+    document.getElementById('activeLangLabel').textContent = langMeta[lang].label;
+    document.querySelectorAll('.form-lang-menu button').forEach(b => b.classList.remove('active'));
+    const map = { ko:0, en:1, vn:2 };
+    document.querySelectorAll('.form-lang-menu button')[map[lang]].classList.add('active');
+    document.getElementById('langDropdown').classList.remove('open');
+    applyLang(lang);
+  }
+
+  function applyLang(lang) {
+    const t = i18n[lang];
+    document.getElementById('back-label').textContent = t.back;
+    document.getElementById('left-steps-title').textContent = t.left_title;
+    document.getElementById('left-s1-title').textContent = t.ls1;
+    document.getElementById('left-s1-desc').textContent = t.ls1d;
+    document.getElementById('left-s2-title').textContent = t.ls2;
+    document.getElementById('left-s2-desc').textContent = t.ls2d;
+    document.getElementById('left-s3-title').textContent = t.ls3;
+    document.getElementById('left-s3-desc').textContent = t.ls3d;
+    document.getElementById('s1-title').textContent = t.s1_title;
+    document.getElementById('s1-sub').textContent = t.s1_sub;
+    document.querySelector('label[for="email-input"]').textContent = t.s1_label;
+    document.getElementById('s1-btn').textContent = t.s1_btn;
+    document.getElementById('s1-remember').textContent = t.s1_remember;
+    document.getElementById('s1-login-link').textContent = t.s1_login;
+    document.getElementById('email-err').textContent = t.s1_err;
+    document.getElementById('s2-title').textContent = t.s2_title;
+    document.getElementById('s2-sub').textContent = t.s2_sub;
+    document.getElementById('s2-btn').textContent = t.s2_btn;
+    document.getElementById('s2-resend').textContent = t.s2_resend;
+    document.getElementById('s2-back').textContent = t.s2_back;
+    document.getElementById('timer-label').textContent = t.s2_timer;
+    document.getElementById('otp-err').textContent = t.s2_err;
+    document.getElementById('s3-title').textContent = t.s3_title;
+    document.getElementById('s3-sub').textContent = t.s3_sub;
+    document.getElementById('s3-pw-label').textContent = t.s3_pw;
+    document.getElementById('s3-pw2-label').textContent = t.s3_pw2;
+    document.getElementById('s3-btn').textContent = t.s3_btn;
+    document.getElementById('s3-back').textContent = t.s3_back;
+    document.getElementById('new-pw-err').textContent = t.s3_err1;
+    document.getElementById('confirm-pw-err').textContent = t.s3_err2;
+    document.getElementById('s4-title').textContent = t.s4_title;
+    document.getElementById('s4-sub').innerHTML = t.s4_sub;
+    document.getElementById('s4-btn').textContent = t.s4_btn;
+  }
+
+  // ── Step navigation ──
+  function setStep(n) {
+    currentStep = n;
+    for (let i = 1; i <= 4; i++) {
+      document.getElementById('step' + i).classList.toggle('active', i === n);
+    }
+    // dots
+    ['dot1','dot2','dot3'].forEach((id, i) => {
+      const dot = document.getElementById(id);
+      dot.className = 'dot';
+      if (i + 1 < n) dot.classList.add('done');
+      else if (i + 1 === n) dot.classList.add('active');
+      else dot.classList.add('pending');
+    });
+    // left steps
+    ['left-step1','left-step2','left-step3'].forEach((id, i) => {
+      const el = document.getElementById(id);
+      el.className = 'step-num';
+      if (i + 1 < n) { el.classList.add('done'); el.innerHTML = '✓'; }
+      else if (i + 1 === n) el.classList.add('active');
+      else el.classList.add('pending');
+    });
+  }
+
+  function goStep2() {
+    const email = document.getElementById('email-input').value.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      document.getElementById('email-err').classList.add('visible');
+      document.getElementById('email-input').classList.add('error');
+      return;
+    }
+    document.getElementById('display-email').textContent = email;
+    setStep(2);
+    startTimer();
+    document.getElementById('otp-single').focus();
+  }
+
+  function goStep3() {
+    const code = document.getElementById('otp-single').value;
+    if (code.length < 6) {
+      document.getElementById('otp-err').classList.add('visible');
+      document.getElementById('otp-single').classList.add('error');
+      return;
+    }
+    clearInterval(timerInterval);
+    setStep(3);
+    document.getElementById('new-pw').focus();
+  }
+
+  function goStep4() {
+    const pw = document.getElementById('new-pw').value;
+    const pw2 = document.getElementById('confirm-pw').value;
+    let valid = true;
+    if (pw.length < 8) {
+      document.getElementById('new-pw-err').classList.add('visible');
+      document.getElementById('new-pw').classList.add('error');
+      valid = false;
+    }
+    if (pw !== pw2) {
+      document.getElementById('confirm-pw-err').classList.add('visible');
+      document.getElementById('confirm-pw').classList.add('error');
+      valid = false;
+    }
+    if (!valid) return;
+    setStep(4);
+    setTimeout(() => { window.location.href = 'signup.html?tab=login'; }, 3000);
+  }
+
+  function goBack(fromStep) {
+    setStep(fromStep - 1);
+    if (fromStep === 2) clearInterval(timerInterval);
+  }
+
+  function otpSingleInput(el) {
+    el.value = el.value.replace(/\D/g, '').slice(0, 6);
+    el.classList.toggle('filled', el.value.length === 6);
+    el.classList.remove('error');
+    document.getElementById('otp-err').classList.remove('visible');
+  }
+
+  // ── Timer ──
+  function startTimer(seconds = 300) {
+    clearInterval(timerInterval);
+    let remaining = seconds;
+    updateTimer(remaining);
+    timerInterval = setInterval(() => {
+      remaining--;
+      updateTimer(remaining);
+      if (remaining <= 0) {
+        clearInterval(timerInterval);
+        document.getElementById('timer').textContent = '00:00';
+        document.getElementById('s2-resend').style.borderColor = 'var(--error)';
+        document.getElementById('s2-resend').style.color = 'var(--error)';
+      }
+    }, 1000);
+  }
+
+  function updateTimer(s) {
+    const m = Math.floor(s / 60).toString().padStart(2, '0');
+    const sec = (s % 60).toString().padStart(2, '0');
+    document.getElementById('timer').textContent = `${m}:${sec}`;
+  }
+
+  function resendCode() {
+    const el = document.getElementById('otp-single');
+    el.value = ''; el.classList.remove('filled','error');
+    document.getElementById('otp-err').classList.remove('visible');
+    document.getElementById('s2-resend').style.borderColor = '';
+    document.getElementById('s2-resend').style.color = '';
+    startTimer();
+    el.focus();
+  }
+
+  // ── Password strength ──
+  function checkNewPwStrength() {
+    const val = document.getElementById('new-pw').value;
+    const box = document.getElementById('new-pw-strength');
+    const label = document.getElementById('new-pw-label');
+    const t = i18n[currentLang];
+    if (!val) { box.style.display = 'none'; return; }
+    box.style.display = 'block';
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val) || /[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val) && val.length >= 10) score++;
+    const cls = ['weak','fair','strong'][Math.min(score,2)];
+    ['ns1','ns2','ns3'].forEach((id,i) => {
+      document.getElementById(id).className = 'pw-bar-seg';
+      if (i <= score - 1) document.getElementById(id).classList.add(cls);
+    });
+    const labels = [t.pw_weak, t.pw_fair, t.pw_strong];
+    const colors = ['#DC2626','#D97706','#16A34A'];
+    label.textContent = labels[Math.min(score,2)];
+    label.style.color = colors[Math.min(score,2)];
+  }
+
+  // ── Utils ──
+  function togglePw(id, btn) {
+    const input = document.getElementById(id);
+    const isText = input.type === 'text';
+    input.type = isText ? 'password' : 'text';
+    btn.innerHTML = isText
+      ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`
+      : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+  }
+
+  function clearFieldErr(errId, inputId) {
+    document.getElementById(errId).classList.remove('visible');
+    document.getElementById(inputId).classList.remove('error');
+  }
+
+  document.addEventListener('click', () => {
+    document.getElementById('langDropdown').classList.remove('open');
+  });
+</script>
+</body>
+</html>
