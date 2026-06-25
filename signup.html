@@ -1026,33 +1026,51 @@
     if (e.key === 'Escape') closeForgotModal();
   });
 </script>
-  // --- THÊM PHẦN NÀY VÀO CUỐI SCRIPT ---
-
-  function openForgotModal() {
-    document.getElementById('forgotOverlay').classList.add('open');
-    document.getElementById('forgotModal').classList.add('open');
-  }
-
-  function closeForgotModal() {
-    document.getElementById('forgotOverlay').classList.remove('open');
-    document.getElementById('forgotModal').classList.remove('open');
-  }
-
-  function doSignup() {
-    const email = document.getElementById('su-email').value.trim();
-    const pw = document.getElementById('su-pw').value;
-    const pw2 = document.getElementById('su-pw2').value;
-    
-    if (email.includes('@') && pw.length >= 8 && pw === pw2) {
-      document.getElementById('signupForm').style.display = 'none';
-      document.getElementById('successBox').classList.add('visible');
-    } else {
-      alert("입력 정보를 다시 확인해주세요.");
+<script>
+    // 1. Xử lý đóng/mở Mobile Menu (nếu có)
+    function closeMobileMenu() {
+      document.getElementById('mobileOverlay').classList.remove('visible');
+      document.getElementById('mobileDrawer').classList.remove('open');
     }
-  }
 
-  function doLogin() {
-    alert("로그인 버튼이 눌렸습니다!");
-  }
+    // 2. Các hàm cho Modal "Quên mật khẩu"
+    function openForgotModal() {
+      document.getElementById('forgotOverlay').classList.add('open');
+      document.getElementById('forgotModal').classList.add('open');
+    }
+
+    function closeForgotModal() {
+      document.getElementById('forgotOverlay').classList.remove('open');
+      document.getElementById('forgotModal').classList.remove('open');
+    }
+
+    // 3. Các hàm xử lý Form
+    function doSignup() {
+      const email = document.getElementById('su-email').value.trim();
+      const pw = document.getElementById('su-pw').value;
+      const pw2 = document.getElementById('su-pw2').value;
+      
+      if (email.includes('@') && pw.length >= 8 && pw === pw2) {
+        document.getElementById('signupForm').style.display = 'none';
+        document.getElementById('successBox').classList.add('visible');
+      } else {
+        alert("입력 정보를 다시 확인해주세요.");
+      }
+    }
+
+    function doLogin() {
+      alert("로그인 버튼이 눌렸습니다!");
+    }
+
+    // 4. Lắng nghe sự kiện bàn phím
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeForgotModal();
+        closeMobileMenu(); // Nên đóng cả menu mobile nếu đang mở
+      }
+    });
+  </script>
+</body>
+</html>
 </body>
 </html>
